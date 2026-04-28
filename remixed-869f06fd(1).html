@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maré Alta — Cardápio Digital</title>
+
+<style>
+:root {
+  --ocean:#1E4D4A;--ocean-mid:#2C6B67;--sand:#FDF6EC;--sand-dark:#F2E6D0;
+  --amber:#D4883A;--amber-light:#F5C87A;--text:#1C2B2A;--text-mid:#4A6360;
+  --text-light:#8AA5A3;--white:#FFFFFF;--green:#25D366;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--sand);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh}
+
+/* HERO */
+.hero{background:var(--ocean);padding:2.5rem 1.5rem 2rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:-30px;left:-20px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.04)}
+.hero::after{content:'';position:absolute;top:-40px;right:-30px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--amber-light);letter-spacing:.06em;margin-bottom:1rem}
+.hero-badge span{width:6px;height:6px;background:#5DCAA5;border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.hero h1{font-family:Georgia,'Times New Roman',serif;font-size:36px;font-weight:700;color:var(--white);line-height:1.1;margin-bottom:.3rem}
+.hero h1 em{font-style:italic;color:var(--amber-light)}
+.hero-sub{font-size:13px;color:rgba(255,255,255,0.55);font-weight:300;margin-bottom:1.4rem;letter-spacing:.02em}
+.hero-info{display:flex;gap:1.5rem}
+.hero-info-item{display:flex;flex-direction:column;gap:2px}
+.hero-info-item .val{font-size:13px;color:rgba(255,255,255,0.9);font-weight:500}
+.hero-info-item .key{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.04em}
+.hero-wave{position:absolute;bottom:0;left:0;right:0;height:28px;background:var(--sand);border-radius:28px 28px 0 0}
+
+/* MESA INPUT */
+.mesa-bar{background:var(--white);margin:1rem 1.25rem 0;border-radius:12px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;border:1px solid var(--sand-dark)}
+.mesa-bar label{font-size:12px;color:var(--text-light);white-space:nowrap}
+.mesa-bar input{flex:1;border:1px solid var(--sand-dark);border-radius:8px;padding:5px 10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--sand);outline:none}
+.mesa-bar input:focus{border-color:var(--ocean-mid)}
+
+/* TABS */
+.tabs-wrapper{position:sticky;top:0;z-index:10;background:var(--sand);padding:1rem 0 0}
+.tabs{display:flex;gap:0;overflow-x:auto;padding:0 1.25rem .75rem;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 16px;font-size:13px;font-weight:400;color:var(--text-light);border:1.5px solid transparent;border-radius:20px;cursor:pointer;transition:all .2s;background:transparent;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.tab.active{background:var(--ocean);color:var(--white);font-weight:500;border-color:var(--ocean)}
+.tab:not(.active):hover{border-color:var(--ocean-mid);color:var(--ocean)}
+.tabs-line{height:1px;background:var(--sand-dark);margin:0 1.25rem}
+
+/* SECTIONS */
+.section{padding:1.5rem 1.25rem 0;display:none}
+.section.visible{display:block}
+.section-header{display:flex;align-items:baseline;gap:.5rem;margin-bottom:1rem}
+.section-title{font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:500;color:var(--text)}
+.section-count{font-size:12px;color:var(--text-light)}
+
+/* FEATURED */
+.card-featured{background:var(--ocean);border-radius:18px;padding:1.25rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.card-featured::after{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06)}
+.card-featured .label{font-size:10px;font-weight:500;color:var(--amber-light);letter-spacing:.08em;margin-bottom:.5rem}
+.card-featured .name{font-family:'Playfair Display',serif;font-size:20px;color:var(--white);font-weight:500;margin-bottom:.3rem}
+.card-featured .desc{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;margin-bottom:1rem;font-weight:300}
+.card-featured .foot{display:flex;justify-content:space-between;align-items:center}
+.card-featured .price{font-size:22px;font-weight:700;color:var(--amber-light)}
+.card-featured .price span{font-size:13px;font-weight:400;color:rgba(255,255,255,0.4)}
+.card-featured .emoji-big{font-size:48px;position:absolute;top:1rem;right:1.25rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3))}
+
+/* QTY CONTROL */
+.qty-ctrl{display:flex;align-items:center;gap:0;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden}
+.qty-btn{width:32px;height:32px;background:transparent;color:var(--white);border:none;font-size:18px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.qty-btn:hover{background:rgba(255,255,255,0.15)}
+.qty-num{min-width:28px;text-align:center;font-size:14px;font-weight:600;color:var(--white)}
+.btn-add-feat{background:var(--amber);color:var(--white);border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.btn-add-feat:hover{background:#C47830}
+
+/* REGULAR ITEMS */
+.item{display:flex;align-items:center;gap:1rem;background:var(--white);border-radius:14px;padding:1rem;margin-bottom:.75rem;border:1px solid rgba(0,0,0,0.05);transition:transform .15s,box-shadow .15s}
+.item:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.07)}
+.item-emoji{width:56px;height:56px;border-radius:12px;background:var(--sand-dark);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-desc{font-size:11px;color:var(--text-light);line-height:1.4;font-weight:300}
+.item-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.item-price{font-size:15px;font-weight:700;color:var(--ocean)}
+.item-qty{display:flex;align-items:center;gap:0;background:var(--sand-dark);border-radius:8px;overflow:hidden}
+.iq-btn{width:28px;height:28px;background:transparent;border:none;font-size:16px;cursor:pointer;color:var(--ocean);font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.iq-btn:hover{background:rgba(30,77,74,0.1)}
+.iq-num{min-width:22px;text-align:center;font-size:13px;font-weight:600;color:var(--ocean)}
+.tag-popular{font-size:9px;font-weight:500;padding:2px 7px;border-radius:6px;background:#FEF3C7;color:#92400E;letter-spacing:.04em}
+.tag-novo{font-size:9px;font-weight:500;padding:2px 7px;border-radius:6px;background:#D1FAE5;color:#065F46;letter-spacing:.04em}
+.tag-esp{font-size:9px;font-weight:500;padding:2px 7px;border-radius:6px;background:#EDE9FE;color:#5B21B6;letter-spacing:.04em}
+
+/* DRINKS GRID */
+.drinks-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.drink-card{background:var(--white);border-radius:14px;padding:.9rem;border:1px solid rgba(0,0,0,0.05);text-align:center}
+.drink-emoji{font-size:32px;display:block;margin-bottom:.4rem}
+.drink-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.drink-desc{font-size:10px;color:var(--text-light);margin-bottom:.6rem;font-weight:300}
+.drink-price{font-size:14px;font-weight:700;color:var(--ocean);margin-bottom:.5rem}
+.drink-qty{display:flex;align-items:center;justify-content:center;gap:0;background:var(--sand-dark);border-radius:8px;overflow:hidden;width:fit-content;margin:0 auto}
+
+/* CART FLOAT */
+.cart-float{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--ocean);color:var(--white);border:none;border-radius:20px;padding:12px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(30,77,74,0.4);transition:all .2s;opacity:0;pointer-events:none;white-space:nowrap;z-index:50}
+.cart-float.visible{opacity:1;pointer-events:all}
+.cart-float:hover{transform:translateX(-50%) translateY(-2px)}
+.cart-badge{background:var(--amber);border-radius:10px;padding:2px 9px;font-size:12px;font-weight:700}
+
+/* CART DRAWER */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;background:var(--sand);border-radius:24px 24px 0 0;z-index:70;transition:transform .3s cubic-bezier(.32,.72,0,1);padding:0 0 2rem;max-height:85vh;overflow-y:auto}
+.drawer.open{transform:translateX(-50%) translateY(0)}
+.drawer-handle{width:40px;height:4px;background:var(--sand-dark);border-radius:4px;margin:12px auto 1rem}
+.drawer-title{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:500;padding:0 1.25rem;margin-bottom:1rem}
+.cart-item-row{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--sand-dark)}
+.ci-emoji{font-size:24px;width:40px;text-align:center;flex-shrink:0}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-size:13px;font-weight:500;color:var(--text)}
+.ci-price{font-size:12px;color:var(--text-light);margin-top:1px}
+.ci-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ci-total{font-size:14px;font-weight:600;color:var(--ocean)}
+.ci-remove{font-size:11px;color:var(--text-light);cursor:pointer;padding:2px 6px;border-radius:4px;border:none;background:transparent;font-family:'DM Sans',sans-serif}
+.ci-remove:hover{color:#E24B4A}
+.cart-empty{text-align:center;padding:2.5rem 1rem;color:var(--text-light);font-size:14px}
+.cart-footer{padding:1.25rem 1.25rem 0}
+.obs-label{font-size:12px;color:var(--text-light);margin-bottom:.4rem}
+.obs-input{width:100%;border:1px solid var(--sand-dark);border-radius:10px;padding:.65rem .9rem;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);outline:none;resize:none;min-height:64px}
+.obs-input:focus{border-color:var(--ocean-mid)}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin:1rem 0 1.25rem}
+.total-label{font-size:14px;color:var(--text-mid)}
+.total-val{font-size:22px;font-weight:700;color:var(--ocean)}
+.btn-whats{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--green);color:var(--white);border:none;border-radius:14px;padding:14px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:background .15s}
+.btn-whats:hover{background:#1EB858}
+.btn-cancel{width:100%;margin-top:.65rem;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;padding:.5rem}
+
+/* GARCOM */
+.garcom-footer{text-align:center;padding:1.25rem 1.25rem 0;font-size:12px;color:var(--text-light)}
+.garcom-footer strong{color:var(--ocean)}
+.watermark{text-align:center;padding:.75rem 0 1.5rem;font-size:10px;color:var(--text-light);opacity:.6;letter-spacing:.04em}
+.watermark strong{color:var(--ocean)}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge"><span></span>Aberto agora</div>
+  <h1>Maré<br><em>Alta</em></h1>
+  <div class="hero-sub">Frutos do mar frescos da costa bragantina</div>
+  <div class="hero-info">
+    <div class="hero-info-item"><span class="val">Ajuruteua, Bragança</span><span class="key">Localização</span></div>
+    <div class="hero-info-item"><span class="val">10h – 22h</span><span class="key">Horário</span></div>
+    <div class="hero-info-item"><span class="val">★ 4.9</span><span class="key">Avaliação</span></div>
+  </div>
+  <div class="hero-wave"></div>
+</div>
+
+<!-- MESA -->
+<div class="mesa-bar">
+  <label>🪑 Mesa / Nome:</label>
+  <input type="text" id="mesaInput" placeholder="Ex: Mesa 5  ou  João Silva">
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'peixes')">🐟 Peixes</button>
+    <button class="tab" onclick="switchTab(this,'frutos')">🦐 Frutos do Mar</button>
+    <button class="tab" onclick="switchTab(this,'acomp')">🍚 Acompanhamentos</button>
+    <button class="tab" onclick="switchTab(this,'bebidas')">🥤 Bebidas</button>
+  </div>
+  <div class="tabs-line"></div>
+</div>
+
+<!-- PEIXES -->
+<div class="section visible" id="sec-peixes">
+  <div class="section-header"><span class="section-title">Peixes</span><span class="section-count">6 itens</span></div>
+  <div class="card-featured">
+    <div class="label">⭐ DESTAQUE DO DIA</div>
+    <div class="name">Filé de Dourada Grelhado</div>
+    <div class="desc">Peixe fresco local, azeite de ervas, limão siciliano e alho tostado</div>
+    <div class="foot">
+      <div><div class="price">R$ 68<span>,00 / porção</span></div><div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">Serve 1–2 pessoas</div></div>
+      <div id="feat-ctrl" class="qty-ctrl" style="display:none">
+        <button class="qty-btn" onclick="featQty(-1)">−</button>
+        <span class="qty-num" id="feat-n">0</span>
+        <button class="qty-btn" onclick="featQty(1)">+</button>
+      </div>
+      <button class="btn-add-feat" id="feat-addbtn" onclick="addFeat()">+ Adicionar</button>
+    </div>
+    <div class="emoji-big">🐟</div>
+  </div>
+  <div class="item" data-id="peixe-frito" data-name="Peixe Frito Inteiro" data-emoji="🐠" data-price="52"><div class="item-emoji">🐠</div><div class="item-info"><div class="item-name">Peixe Frito Inteiro</div><div class="item-desc">Tainha ou mapará, frito na hora com tempero regional</div></div><div class="item-right"><span class="tag-popular">Popular</span><div class="item-price">R$ 52</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="moqueca" data-name="Moqueca de Pirarucu" data-emoji="🫕" data-price="85"><div class="item-emoji">🫕</div><div class="item-info"><div class="item-name">Moqueca de Pirarucu</div><div class="item-desc">Leite de coco, coentro, tomate e azeite de dendê</div></div><div class="item-right"><div class="item-price">R$ 85</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="caldeirada" data-name="Caldeirada de Peixe" data-emoji="🍲" data-price="78"><div class="item-emoji">🍲</div><div class="item-info"><div class="item-name">Caldeirada de Peixe</div><div class="item-desc">Mix de peixes locais, batata, pimentão e caldo saboroso</div></div><div class="item-right"><span class="tag-novo">Novo</span><div class="item-price">R$ 78</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="file-assado" data-name="Filé Assado na Folha" data-emoji="🥘" data-price="62"><div class="item-emoji">🥘</div><div class="item-info"><div class="item-name">Filé Assado na Folha</div><div class="item-desc">Assado em folha de bananeira com temperos da região</div></div><div class="item-right"><div class="item-price">R$ 62</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="tucunare" data-name="Posta de Tucunaré" data-emoji="🐡" data-price="58"><div class="item-emoji">🐡</div><div class="item-info"><div class="item-name">Posta de Tucunaré</div><div class="item-desc">Grelhada ou frita, com molho de ervas frescas</div></div><div class="item-right"><div class="item-price">R$ 58</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+</div>
+
+<!-- FRUTOS DO MAR -->
+<div class="section" id="sec-frutos">
+  <div class="section-header"><span class="section-title">Frutos do Mar</span><span class="section-count">4 itens</span></div>
+  <div class="card-featured" style="background:#2C5040">
+    <div class="label">⭐ MAIS PEDIDO</div>
+    <div class="name">Casquinha de Caranguejo</div>
+    <div class="desc">Catado na hora, gratinado com molho especial da casa</div>
+    <div class="foot">
+      <div><div class="price">R$ 34<span>,00 / un.</span></div><div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px">Mínimo 2 unidades</div></div>
+      <div id="feat2-ctrl" class="qty-ctrl" style="display:none">
+        <button class="qty-btn" onclick="featQty2(-1)">−</button>
+        <span class="qty-num" id="feat2-n">0</span>
+        <button class="qty-btn" onclick="featQty2(1)">+</button>
+      </div>
+      <button class="btn-add-feat" id="feat2-addbtn" onclick="addFeat2()">+ Adicionar</button>
+    </div>
+    <div class="emoji-big">🦀</div>
+  </div>
+  <div class="item" data-id="camarao-moranga" data-name="Camarão na Moranga" data-emoji="🦐" data-price="92"><div class="item-emoji">🦐</div><div class="item-info"><div class="item-name">Camarão na Moranga</div><div class="item-desc">Camarão fresco ao molho cremoso servido na moranga</div></div><div class="item-right"><span class="tag-popular">Popular</span><div class="item-price">R$ 92</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="lula" data-name="Lula à Dorê" data-emoji="🦑" data-price="56"><div class="item-emoji">🦑</div><div class="item-info"><div class="item-name">Lula à Dorê</div><div class="item-desc">Frita crocante com molho tártaro da casa</div></div><div class="item-right"><div class="item-price">R$ 56</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="lagosta" data-name="Lagosta Grelhada" data-emoji="🦞" data-price="145"><div class="item-emoji">🦞</div><div class="item-info"><div class="item-name">Lagosta Grelhada</div><div class="item-desc">Manteiga de alho, limão e ervas finas — sob encomenda</div></div><div class="item-right"><span class="tag-esp">Especial</span><div class="item-price">R$ 145</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+</div>
+
+<!-- ACOMPANHAMENTOS -->
+<div class="section" id="sec-acomp">
+  <div class="section-header"><span class="section-title">Acompanhamentos</span><span class="section-count">5 itens</span></div>
+  <div class="item" data-id="arroz-cuxa" data-name="Arroz de Cuxá" data-emoji="🍚" data-price="18"><div class="item-emoji">🍚</div><div class="item-info"><div class="item-name">Arroz de Cuxá</div><div class="item-desc">Prato típico com vinagreira e camarão seco</div></div><div class="item-right"><span class="tag-popular">Popular</span><div class="item-price">R$ 18</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="feijao" data-name="Feijão Tropeiro" data-emoji="🫘" data-price="16"><div class="item-emoji">🫘</div><div class="item-info"><div class="item-name">Feijão Tropeiro</div><div class="item-desc">Feijão com farinha, couve e torresmo</div></div><div class="item-right"><div class="item-price">R$ 16</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="salada" data-name="Salada Tropical" data-emoji="🥗" data-price="22"><div class="item-emoji">🥗</div><div class="item-info"><div class="item-name">Salada Tropical</div><div class="item-desc">Folhas frescas, manga, palmito e molho de maracujá</div></div><div class="item-right"><div class="item-price">R$ 22</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="macaxeira" data-name="Macaxeira Frita" data-emoji="🍟" data-price="20"><div class="item-emoji">🍟</div><div class="item-info"><div class="item-name">Macaxeira Frita</div><div class="item-desc">Crocante por fora, macia por dentro — 300g</div></div><div class="item-right"><div class="item-price">R$ 20</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+  <div class="item" data-id="pirao" data-name="Pirão de Peixe" data-emoji="🧆" data-price="12"><div class="item-emoji">🧆</div><div class="item-info"><div class="item-name">Pirão de Peixe</div><div class="item-desc">Feito com caldo do peixe do prato principal</div></div><div class="item-right"><div class="item-price">R$ 12</div><div class="item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div></div>
+</div>
+
+<!-- BEBIDAS -->
+<div class="section" id="sec-bebidas">
+  <div class="section-header"><span class="section-title">Bebidas</span><span class="section-count">6 itens</span></div>
+  <div class="drinks-grid">
+    <div class="drink-card" data-id="coco" data-name="Água de Coco" data-emoji="🥥" data-price="8"><span class="drink-emoji">🥥</span><div class="drink-name">Água de Coco</div><div class="drink-desc">Coco verde gelado</div><div class="drink-price">R$ 8</div><div class="drink-qty item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div>
+    <div class="drink-card" data-id="acai" data-name="Suco de Açaí" data-emoji="🍹" data-price="14"><span class="drink-emoji">🍹</span><div class="drink-name">Suco de Açaí</div><div class="drink-desc">Natural, 300ml</div><div class="drink-price">R$ 14</div><div class="drink-qty item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div>
+    <div class="drink-card" data-id="cerveja" data-name="Cerveja Gelada" data-emoji="🍺" data-price="9"><span class="drink-emoji">🍺</span><div class="drink-name">Cerveja Gelada</div><div class="drink-desc">Lata 350ml</div><div class="drink-price">R$ 9</div><div class="drink-qty item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div>
+    <div class="drink-card" data-id="tapereba" data-name="Suco de Taperebá" data-emoji="🍊" data-price="12"><span class="drink-emoji">🍊</span><div class="drink-name">Suco de Taperebá</div><div class="drink-desc">Fruta regional, 300ml</div><div class="drink-price">R$ 12</div><div class="drink-qty item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div>
+    <div class="drink-card" data-id="refri" data-name="Refrigerante" data-emoji="🥤" data-price="7"><span class="drink-emoji">🥤</span><div class="drink-name">Refrigerante</div><div class="drink-desc">Lata 350ml</div><div class="drink-price">R$ 7</div><div class="drink-qty item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div>
+    <div class="drink-card" data-id="cafe" data-name="Café Paraense" data-emoji="☕" data-price="6"><span class="drink-emoji">☕</span><div class="drink-name">Café Paraense</div><div class="drink-desc">Coado na hora</div><div class="drink-price">R$ 6</div><div class="drink-qty item-qty"><button class="iq-btn" onclick="changeQty(this,-1)">−</button><span class="iq-num">0</span><button class="iq-btn" onclick="changeQty(this,1)">+</button></div></div>
+  </div>
+</div>
+
+<div class="garcom-footer" style="margin-top:1.5rem;padding-bottom:.5rem">
+  <p>Prefere anotar com o garçom? Chame pelo número<br><strong>(91) 98839-0894</strong></p>
+</div>
+<div class="watermark">Cardápio digital por <strong>Bragança Digital</strong></div>
+<div style="height:5rem"></div>
+
+<!-- CART FLOAT -->
+<button class="cart-float" id="cartFloat" onclick="openDrawer()">
+  🛒 Ver pedido
+  <span class="cart-badge" id="floatCount">0</span>
+  <span id="floatTotal">R$ 0</span>
+</button>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Seu pedido</div>
+  <div id="cartList"></div>
+  <div class="cart-footer">
+    <div class="obs-label">Observações (opcional)</div>
+    <textarea class="obs-input" id="obsInput" placeholder="Ex: sem coentro, ponto da carne, alergias..."></textarea>
+    <div class="total-row">
+      <span class="total-label">Total estimado</span>
+      <span class="total-val" id="drawerTotal">R$ 0,00</span>
+    </div>
+    <button class="btn-whats" onclick="sendWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enviar Pedido pelo WhatsApp
+    </button>
+    <button class="btn-cancel" onclick="closeDrawer()">Continuar escolhendo</button>
+  </div>
+</div>
+
+<script>
+const WHATS_NUM = '5591988390894';
+const cart = {};
+
+const itemData = {};
+document.querySelectorAll('[data-id]').forEach(el => {
+  itemData[el.dataset.id] = {
+    name: el.dataset.name,
+    emoji: el.dataset.emoji,
+    price: parseFloat(el.dataset.price)
+  };
+});
+itemData['file-dourada'] = { name: 'Filé de Dourada Grelhado', emoji: '🐟', price: 68 };
+itemData['casquinha'] = { name: 'Casquinha de Caranguejo', emoji: '🦀', price: 34 };
+
+function getTotal() {
+  return Object.entries(cart).reduce((s,[id,q]) => s + (itemData[id]?.price||0)*q, 0);
+}
+function getTotalQty() {
+  return Object.values(cart).reduce((s,q)=>s+q,0);
+}
+
+function updateFloat() {
+  const qty = getTotalQty();
+  const total = getTotal();
+  const btn = document.getElementById('cartFloat');
+  if (qty > 0) {
+    btn.classList.add('visible');
+    document.getElementById('floatCount').textContent = qty;
+    document.getElementById('floatTotal').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+  } else {
+    btn.classList.remove('visible');
+  }
+  document.getElementById('drawerTotal').textContent = 'R$ ' + total.toFixed(2).replace('.',',');
+}
+
+function changeQty(btn, delta) {
+  const container = btn.closest('[data-id]');
+  const id = container.dataset.id;
+  const numEl = btn.parentElement.querySelector('.iq-num');
+  const cur = parseInt(numEl.textContent)||0;
+  const next = Math.max(0, cur+delta);
+  numEl.textContent = next;
+  if (next === 0) delete cart[id]; else cart[id] = next;
+  updateFloat();
+}
+
+let featQtyVal = 0;
+function addFeat() {
+  featQtyVal = 1; cart['file-dourada'] = 1;
+  document.getElementById('feat-addbtn').style.display='none';
+  document.getElementById('feat-ctrl').style.display='flex';
+  document.getElementById('feat-n').textContent = 1;
+  updateFloat();
+}
+function featQty(d) {
+  featQtyVal = Math.max(0, featQtyVal+d);
+  document.getElementById('feat-n').textContent = featQtyVal;
+  if (featQtyVal === 0) { delete cart['file-dourada']; document.getElementById('feat-addbtn').style.display=''; document.getElementById('feat-ctrl').style.display='none'; }
+  else cart['file-dourada'] = featQtyVal;
+  updateFloat();
+}
+
+let feat2QtyVal = 0;
+function addFeat2() {
+  feat2QtyVal = 1; cart['casquinha'] = 1;
+  document.getElementById('feat2-addbtn').style.display='none';
+  document.getElementById('feat2-ctrl').style.display='flex';
+  document.getElementById('feat2-n').textContent = 1;
+  updateFloat();
+}
+function featQty2(d) {
+  feat2QtyVal = Math.max(0, feat2QtyVal+d);
+  document.getElementById('feat2-n').textContent = feat2QtyVal;
+  if (feat2QtyVal === 0) { delete cart['casquinha']; document.getElementById('feat2-addbtn').style.display=''; document.getElementById('feat2-ctrl').style.display='none'; }
+  else cart['casquinha'] = feat2QtyVal;
+  updateFloat();
+}
+
+function openDrawer() {
+  renderCartList();
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function renderCartList() {
+  const el = document.getElementById('cartList');
+  const entries = Object.entries(cart).filter(([,q])=>q>0);
+  if (!entries.length) { el.innerHTML='<div class="cart-empty">Seu carrinho está vazio 🐟<br><small>Adicione itens do cardápio</small></div>'; return; }
+  el.innerHTML = entries.map(([id,qty])=>{
+    const it = itemData[id];
+    return `<div class="cart-item-row">
+      <span class="ci-emoji">${it.emoji}</span>
+      <div class="ci-info">
+        <div class="ci-name">${qty}x ${it.name}</div>
+        <div class="ci-price">R$ ${it.price.toFixed(2).replace('.',',')} cada</div>
+      </div>
+      <div class="ci-right">
+        <span class="ci-total">R$ ${(it.price*qty).toFixed(2).replace('.',',')}</span>
+        <button class="ci-remove" onclick="removeItem('${id}')">remover</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function removeItem(id) {
+  delete cart[id];
+  if (id==='file-dourada') { featQtyVal=0; document.getElementById('feat-addbtn').style.display=''; document.getElementById('feat-ctrl').style.display='none'; document.getElementById('feat-n').textContent=0; }
+  if (id==='casquinha') { feat2QtyVal=0; document.getElementById('feat2-addbtn').style.display=''; document.getElementById('feat2-ctrl').style.display='none'; document.getElementById('feat2-n').textContent=0; }
+  document.querySelectorAll('[data-id="'+id+'"] .iq-num').forEach(e=>e.textContent='0');
+  renderCartList();
+  updateFloat();
+}
+
+function sendWhatsApp() {
+  const entries = Object.entries(cart).filter(([,q])=>q>0);
+  if (!entries.length) { alert('Adicione pelo menos um item antes de enviar!'); return; }
+  const mesa = document.getElementById('mesaInput').value.trim() || 'Não informado';
+  const obs = document.getElementById('obsInput').value.trim();
+  const now = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  
+  let msg = '🐟 *NOVO PEDIDO — Maré Alta*\n';
+  msg += '─────────────────\n';
+  msg += `🪑 *Mesa/Nome:* ${mesa}\n`;
+  msg += `🕐 *Horário:* ${now}\n`;
+  msg += '─────────────────\n';
+  msg += '*Itens:*\n';
+  entries.forEach(([id,qty])=>{
+    const it = itemData[id];
+    msg += `${it.emoji} ${qty}x ${it.name} — R$ ${(it.price*qty).toFixed(2).replace('.',',')}\n`;
+  });
+  msg += '─────────────────\n';
+  msg += `💰 *Total: R$ ${getTotal().toFixed(2).replace('.',',')}*\n`;
+  if (obs) msg += `📝 *Obs:* ${obs}\n`;
+  msg += '─────────────────\n';
+  msg += '_Pedido enviado pelo cardápio digital_';
+
+  const url = 'https://wa.me/' + WHATS_NUM + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+function switchTab(btn, section) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('visible'));
+  btn.classList.add('active');
+  document.getElementById('sec-'+section).classList.add('visible');
+}
+</script>
+</body>
+</html>
